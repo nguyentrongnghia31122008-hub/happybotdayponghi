@@ -1,0 +1,2085 @@
+<!doctype html>
+<!--
+  WEBSITE CHÚC MỪNG SINH NHẬT PASTEL — HƯỚNG DẪN MỞ VÀ THAY NỘI DUNG
+  1. Mở thư mục chứa index.html bằng Visual Studio Code.
+  2. Chạy thử bằng cách mở index.html trong trình duyệt hoặc dùng extension Live Server.
+  3. Không cần cài thư viện hay kết nối Internet; CSS và JavaScript nằm ngay trong file này.
+  4. Ảnh kỷ niệm đặt trong thư mục images; nhạc MP3 đặt trong audio.
+  5. Tìm các comment bắt đầu bằng "[CHÚ THÍCH THAY THẾ:" để biết chỗ thay text, ảnh, nhạc, sticker.
+  6. Cấu hình ngày sinh, nội dung lời chúc, ảnh album, thư và nhạc tập trung trong phần JavaScript.
+
+  CẤU TRÚC THƯ MỤC GỢI Ý:
+  index.html
+  images/
+    ky-niem-01.jpg ... ky-niem-22.jpg  (22 ảnh kỷ niệm, đúng thứ tự gửi)
+    trai-tim-ky-niem.jpg   (ảnh atlas cũ, không còn được dùng trong trái tim)
+  audio/
+    nhac-sinh-nhat.mp3     (bài nhạc do bạn tự thêm)
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff8f4">
+  <title>háp py bớt đay pờ nghiii</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --cream: #fff8f4;
+      --paper: #fffdfb;
+      --pink: #ffd1dc;
+      --pink-deep: #ed91ad;
+      --mint: #b5ead7;
+      --yellow: #fff2cc;
+      --lavender: #e2dfec;
+      --ink: #66535f;
+      --muted: #9b8793;
+      --shadow: 0 18px 55px rgb(111 77 96 / 12%);
+      --round: "Quicksand", "Trebuchet MS", "Arial Rounded MT Bold", sans-serif;
+      --hand: "Segoe Print", "Comic Sans MS", cursive;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { min-width: 320px; min-height: 100%; background: var(--cream); }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 8% 12%, rgb(255 209 220 / 44%), transparent 32%),
+        radial-gradient(ellipse at 93% 85%, rgb(181 234 215 / 44%), transparent 30%),
+        linear-gradient(145deg, #fffaf7, #fff7fa 52%, #f8fffc);
+      font-family: var(--round);
+      font-weight: 600;
+    }
+
+    button { font: inherit; }
+
+    button:focus-visible {
+      outline: 3px solid #bd91c4;
+      outline-offset: 4px;
+    }
+
+    .ambient {
+      position: fixed;
+      z-index: 0;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .floaty {
+      position: absolute;
+      bottom: -36px;
+      opacity: 0;
+      animation: float-up var(--duration, 12s) linear var(--delay, 0s) infinite;
+      filter: drop-shadow(0 2px 4px rgb(150 112 142 / 12%));
+    }
+
+    @keyframes float-up {
+      0% { transform: translate3d(0, 0, 0) rotate(0deg) scale(.75); opacity: 0; }
+      12% { opacity: .65; }
+      82% { opacity: .55; }
+      100% { transform: translate3d(var(--drift, 30px), -110vh, 0) rotate(260deg) scale(1.1); opacity: 0; }
+    }
+
+    .sparkle {
+      position: fixed;
+      z-index: 0;
+      color: #e8ba75;
+      pointer-events: none;
+      animation: twinkle 2.8s ease-in-out infinite;
+    }
+
+    .music-player {
+      position: fixed;
+      z-index: 20;
+      right: max(16px, env(safe-area-inset-right));
+      bottom: max(16px, env(safe-area-inset-bottom));
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: calc(100vw - 24px);
+      padding: 10px 14px;
+      border: 1px solid rgb(255 255 255 / 92%);
+      border-radius: 999px;
+      background: rgb(255 253 251 / 94%);
+      box-shadow: 0 8px 26px rgb(111 77 96 / 17%);
+      color: var(--ink);
+      backdrop-filter: blur(12px);
+    }
+
+    .music-toggle {
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 7px 13px;
+      border: 0;
+      border-radius: 999px;
+      background: #fff0f4;
+      color: #a86783;
+      cursor: pointer;
+      font-size: .88rem;
+      font-weight: 800;
+      white-space: nowrap;
+      transition: background .2s ease, transform .2s ease;
+    }
+
+    .music-toggle:hover { transform: translateY(-1px); background: #ffe3ec; }
+    .music-toggle[aria-pressed="true"] { background: #eaf8f2; color: #638f7d; }
+
+    .music-icon {
+      display: inline-block;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .music-toggle[aria-pressed="true"] .music-icon { animation: music-bob .8s ease-in-out infinite alternate; }
+
+    @keyframes music-bob {
+      to { transform: translateY(-2px) rotate(10deg); }
+    }
+
+    .music-volume {
+      width: 76px;
+      height: 4px;
+      accent-color: #e894b2;
+      cursor: pointer;
+    }
+
+    .music-status {
+      position: absolute;
+      right: 12px;
+      bottom: calc(100% + 6px);
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgb(255 253 251 / 94%);
+      color: #9b7d8e;
+      font-size: .72rem;
+      white-space: nowrap;
+      box-shadow: 0 3px 12px rgb(111 77 96 / 10%);
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: .2; transform: scale(.7) rotate(0); }
+      50% { opacity: .8; transform: scale(1.2) rotate(22deg); }
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      padding: 22px 18px 26px;
+    }
+
+    .topbar {
+      display: flex;
+      width: min(100%, 980px);
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .brand {
+      color: #9f7a91;
+      font-size: .82rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .progress {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .progress-dot {
+      width: 9px;
+      height: 9px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: #e9dfe5;
+      cursor: pointer;
+      transition: transform .25s ease, background .25s ease;
+    }
+
+    .progress-dot[aria-current="step"] {
+      transform: scale(1.3);
+      background: var(--pink-deep);
+    }
+
+    .progress-dot:disabled { cursor: default; }
+
+    .stage {
+      display: grid;
+      width: min(100%, 980px);
+      flex: 1;
+      place-items: center;
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      min-height: min(720px, calc(100vh - 105px));
+      place-items: center;
+    }
+
+    .screen.active {
+      display: grid;
+      animation: arrive .65s cubic-bezier(.2, .75, .2, 1) both;
+    }
+
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(16px) scale(.99); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .card {
+      width: min(100%, 760px);
+      padding: clamp(24px, 5vw, 50px);
+      border: 1px solid rgb(255 255 255 / 88%);
+      border-radius: 32px;
+      background: rgb(255 253 251 / 88%);
+      box-shadow: var(--shadow);
+      text-align: center;
+      backdrop-filter: blur(12px);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #b17c98;
+      font-size: .8rem;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, p { margin-top: 0; }
+
+    h1, h2 {
+      margin-bottom: 14px;
+      color: #765c6d;
+      line-height: 1.2;
+    }
+
+    h1 { font-size: clamp(2rem, 7vw, 4.3rem); }
+    h2 { font-size: clamp(1.55rem, 5vw, 2.7rem); }
+
+    .script-title {
+      margin: 8px 0 18px;
+      color: #dc8cab;
+      font-family: var(--hand);
+      font-size: clamp(2.8rem, 10vw, 6rem);
+      font-weight: 700;
+      line-height: 1.06;
+      text-shadow: 0 3px 0 #fff, 0 0 22px rgb(255 205 222 / 80%);
+      animation: title-glow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes title-glow {
+      to { filter: drop-shadow(0 0 12px rgb(232 159 188 / 72%)); }
+    }
+
+    .subtitle {
+      max-width: 520px;
+      margin: 0 auto 26px;
+      color: var(--muted);
+      font-size: clamp(1rem, 2.5vw, 1.15rem);
+      line-height: 1.8;
+    }
+
+    .birthday-date {
+      --date-row-height: 38px;
+      display: flex;
+      min-height: 126px;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      margin: 2px 0 20px;
+      color: #fff;
+      animation: date-in .8s .2s both;
+    }
+
+    .date-reel {
+      position: relative;
+      width: 94px;
+      height: calc(var(--date-row-height) * 3);
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(transparent, #000 24%, #000 76%, transparent);
+      mask-image: linear-gradient(transparent, #000 24%, #000 76%, transparent);
+    }
+
+    .date-reel::after {
+      position: absolute;
+      z-index: 0;
+      top: 50%;
+      left: 50%;
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgb(255 213 224 / 72%), rgb(255 226 198 / 30%) 58%, transparent 72%);
+      content: "";
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .date-reel-strip {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform: translateY(0);
+    }
+
+    .date-reel-strip.is-rolling {
+      transition: transform 4.2s cubic-bezier(.12, .76, .18, 1);
+    }
+
+    .date-number {
+      display: grid;
+      width: 100%;
+      height: var(--date-row-height);
+      flex: 0 0 var(--date-row-height);
+      place-items: center;
+      color: #c7a9b8;
+      font-size: 1.4rem;
+      font-weight: 700;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .date-number.is-target {
+      color: #e584a4;
+      font-size: 3rem;
+      font-weight: 800;
+      text-shadow: 0 0 20px rgb(255 209 220 / 90%);
+    }
+
+    .birthday-date.is-settled .date-number.is-target {
+      animation: date-glow 2.2s ease-in-out infinite;
+    }
+
+    @keyframes date-glow {
+      0%, 100% { transform: scale(1); text-shadow: 0 0 14px rgb(255 209 220 / 65%); }
+      50% { transform: scale(1.08); text-shadow: 0 0 24px rgb(255 173 203 / 95%); }
+    }
+
+    .birthday-month {
+      align-self: center;
+      min-width: 92px;
+      color: #a27d91;
+      font-size: 1.2rem;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateX(-8px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+
+    .birthday-date.is-settled .birthday-month {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    @keyframes date-in {
+      from { opacity: 0; transform: translateY(10px) scale(.92); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .intro-mode {
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 8% 12%, rgb(255 209 220 / 50%), transparent 34%),
+        radial-gradient(ellipse at 92% 84%, rgb(181 234 215 / 54%), transparent 34%),
+        radial-gradient(ellipse at 80% 12%, rgb(226 223 236 / 43%), transparent 28%),
+        linear-gradient(145deg, #fffaf7, #fff7fa 52%, #f8fffc);
+    }
+
+    .intro-mode .app { padding: 24px 18px; }
+    .intro-mode .topbar,
+    .intro-mode .footer-note { display: none; }
+    .intro-mode .stage { width: 100%; max-width: none; }
+    .intro-mode #screen-1 { min-height: calc(100vh - 48px); }
+    .intro-mode #screen-1 .card {
+      position: relative;
+      width: min(100%, 620px);
+      padding: clamp(24px, 6vw, 56px);
+      border: 1px solid rgb(255 255 255 / 92%);
+      background: rgb(255 253 251 / 83%);
+      box-shadow: 0 18px 55px rgb(111 77 96 / 12%);
+      backdrop-filter: blur(12px);
+      overflow: visible;
+    }
+    .intro-mode #screen-1 .eyebrow { display: none; }
+    .intro-mode #title-1 {
+      margin: 0 0 10px;
+      color: #dc8cab;
+      font-size: clamp(2rem, 7.5vw, 4.4rem);
+      white-space: nowrap;
+      text-shadow: 0 3px 0 #fff, 0 0 22px rgb(255 205 222 / 80%);
+    }
+    .intro-mode #introCopy {
+      max-width: 430px;
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: .98rem;
+    }
+    .intro-mode .tiny-note { color: #b2a2ac; }
+
+    .intro-sticker {
+      position: absolute;
+      z-index: 2;
+      display: grid;
+      width: 48px;
+      height: 48px;
+      place-items: center;
+      border: 1px solid rgb(255 255 255 / 95%);
+      border-radius: 17px;
+      background: rgb(255 255 255 / 88%);
+      box-shadow: 0 8px 20px rgb(111 77 96 / 13%);
+      font-size: 25px;
+      pointer-events: none;
+      animation: sticker-bob 3.5s ease-in-out var(--sticker-delay, 0s) infinite;
+    }
+
+    .intro-sticker:nth-of-type(1) { top: -18px; left: 14%; --sticker-tilt: -10deg; }
+    .intro-sticker:nth-of-type(2) { top: -16px; right: 14%; --sticker-tilt: 9deg; }
+    .intro-sticker:nth-of-type(3) { top: 35%; left: 8px; --sticker-tilt: -8deg; }
+    .intro-sticker:nth-of-type(4) { top: 37%; right: 8px; --sticker-tilt: 8deg; }
+    .intro-sticker:nth-of-type(5) { bottom: -16px; left: 23%; --sticker-tilt: 8deg; }
+    .intro-sticker:nth-of-type(6) { right: 23%; bottom: -18px; --sticker-tilt: -9deg; }
+
+    @keyframes sticker-bob {
+      0%, 100% { transform: translateY(0) rotate(var(--sticker-tilt, 0deg)); }
+      50% { transform: translateY(-8px) rotate(calc(var(--sticker-tilt, 0deg) * -1)); }
+    }
+
+    @media (max-width: 480px) {
+      .birthday-date { --date-row-height: 36px; gap: 4px; }
+      .date-reel { width: 82px; }
+      .date-reel::after { width: 76px; height: 76px; }
+      .date-number.is-target { font-size: 2.7rem; }
+      .birthday-date { gap: 0; }
+      .birthday-month { min-width: 84px; font-size: 1.08rem; }
+      .intro-mode #screen-1 .card { padding: 30px 22px; }
+      .intro-sticker { width: 40px; height: 40px; border-radius: 14px; font-size: 21px; }
+      .intro-sticker:nth-of-type(5) { left: 16%; }
+      .intro-sticker:nth-of-type(6) { right: 16%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .date-reel-strip.is-rolling { transition-duration: .01ms; }
+      .intro-sticker { animation: none; }
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      min-height: 48px;
+      padding: 12px 23px;
+      border: 0;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #f3abc2, #e894b2);
+      box-shadow: 0 8px 18px rgb(222 145 175 / 24%);
+      color: white;
+      cursor: pointer;
+      font-weight: 800;
+      transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 11px 23px rgb(222 145 175 / 34%);
+    }
+
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+
+    .btn-soft {
+      border: 1px solid #eadce5;
+      background: #fff;
+      box-shadow: none;
+      color: #96788b;
+    }
+
+    .tiny-note {
+      margin: 15px 0 0;
+      color: #b2a2ac;
+      font-size: .82rem;
+    }
+
+    .cake-layout {
+      display: grid;
+      grid-template-columns: minmax(210px, .9fr) minmax(240px, 1fr);
+      align-items: center;
+      gap: clamp(18px, 5vw, 55px);
+      text-align: left;
+    }
+
+    .cake-scene {
+      position: relative;
+      display: grid;
+      min-height: 300px;
+      place-items: center;
+      overflow: hidden;
+      border-radius: 26px;
+      background: radial-gradient(circle at 50% 58%, #fff 0 23%, #fff4f7 24% 55%, #ffedf2 100%);
+    }
+
+    .cake {
+      position: relative;
+      width: 210px;
+      height: 190px;
+      margin-top: 58px;
+    }
+
+    .cake-shadow {
+      position: absolute;
+      right: -15px;
+      bottom: -8px;
+      left: -15px;
+      height: 22px;
+      border-radius: 50%;
+      background: #e9bfd0;
+    }
+
+    .cake-tier {
+      position: absolute;
+      left: 50%;
+      width: 100%;
+      transform: translateX(-50%);
+      border: 3px solid #fff;
+      border-radius: 16px 16px 20px 20px;
+      box-shadow: inset 0 -8px 0 rgb(225 130 160 / 10%);
+    }
+
+    .cake-tier::before {
+      position: absolute;
+      top: -8px;
+      right: -3px;
+      left: -3px;
+      height: 22px;
+      border-radius: 50%;
+      background: #fff9fb;
+      content: "";
+    }
+
+    .tier-top {
+      top: 49px;
+      width: 118px;
+      height: 52px;
+      background: #f7bfd0;
+    }
+
+    .tier-middle {
+      top: 91px;
+      width: 163px;
+      height: 54px;
+      background: #c5ebdc;
+    }
+
+    .tier-bottom {
+      top: 134px;
+      height: 53px;
+      background: #f6dfaa;
+    }
+
+    .cake-dot {
+      position: absolute;
+      z-index: 1;
+      top: 16px;
+      left: 50%;
+      width: 9px;
+      height: 9px;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background: #fff4b7;
+      box-shadow: -32px 0 #fff4b7, 32px 0 #fff4b7, -61px 42px #fff4b7, 61px 42px #fff4b7;
+    }
+
+    .candle {
+      position: absolute;
+      z-index: 2;
+      top: -2px;
+      left: 50%;
+      width: 56px;
+      height: 90px;
+      padding: 0;
+      transform: translateX(-50%);
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .candle::before {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 13px;
+      height: 61px;
+      transform: translateX(-50%);
+      border: 2px solid white;
+      border-radius: 7px;
+      background: repeating-linear-gradient(135deg, #f4a7bf 0 7px, #fff8f5 7px 13px);
+      content: "";
+      pointer-events: none;
+    }
+
+    .flame {
+      position: absolute;
+      top: -26px;
+      left: 50%;
+      width: 19px;
+      height: 25px;
+      transform: translateX(-50%) rotate(1deg);
+      border-radius: 80% 20% 65% 35%;
+      background: radial-gradient(ellipse at 56% 68%, #fff5a8 0 18%, #ffc66b 44%, #f29b99 78%);
+      box-shadow: 0 0 18px 5px rgb(255 195 113 / 58%);
+      animation: flicker .55s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    @keyframes flicker {
+      to { transform: translateX(-50%) rotate(-7deg) scale(.89); }
+    }
+
+    .candle.is-out .flame { display: none; }
+
+    .wish-hint {
+      margin-top: 20px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: #fff4e5;
+      color: #a77c65;
+      font-size: .92rem;
+      text-align: center;
+    }
+
+    .bunny {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 2.1rem;
+    }
+
+    .message-line {
+      min-height: 86px;
+      margin: 19px 0 0;
+      color: #9d6c86;
+      font-family: var(--hand);
+      font-size: clamp(1.3rem, 3.8vw, 1.75rem);
+      line-height: 1.5;
+    }
+
+    .message-line.show { animation: arrive .55s ease both; }
+
+    .wish-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 30px 0 10px;
+    }
+
+    .wish-tag {
+      position: relative;
+      min-height: 142px;
+      padding: 20px 12px 16px;
+      border: 1px solid rgb(255 255 255 / 90%);
+      border-radius: 22px;
+      background: var(--tag-color, #fff0f4);
+      box-shadow: 0 8px 20px rgb(127 89 111 / 9%);
+      color: #876b7c;
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .wish-tag::before {
+      position: absolute;
+      top: 9px;
+      left: 50%;
+      width: 8px;
+      height: 8px;
+      transform: translateX(-50%);
+      border: 2px solid white;
+      border-radius: 50%;
+      background: #dfb5c4;
+      content: "";
+    }
+
+    .wish-tag:hover { transform: translateY(-5px) rotate(-2deg); box-shadow: var(--shadow); }
+    .wish-tag span { display: block; }
+    .tag-icon { margin: 4px 0 10px; font-size: 2.1rem; }
+    .tag-label { font-size: .9rem; font-weight: 800; }
+
+    .picked-wish {
+      min-height: 54px;
+      margin: 18px auto 0;
+      color: #ad718d;
+      font-family: var(--hand);
+      font-size: clamp(1.05rem, 3vw, 1.4rem);
+      line-height: 1.6;
+    }
+
+    .heart-board {
+      position: relative;
+      display: grid;
+      width: min(100%, 700px);
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      grid-template-rows: repeat(10, minmax(0, 1fr));
+      aspect-ratio: 12 / 10;
+      gap: 3px;
+      margin: 24px auto 20px;
+      background: transparent;
+      filter: drop-shadow(0 12px 20px rgb(194 128 153 / 16%));
+      animation: heart-beat 3.2s ease-in-out infinite;
+      transform-origin: center;
+    }
+
+    .heart-tile {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      border: 1.5px solid white;
+      border-radius: 7px;
+      background-color: #f8dbe4;
+      box-shadow: 0 3px 10px rgb(102 83 95 / 12%);
+      animation: heart-tile-drift 3.8s ease-in-out var(--tile-delay, 0s) infinite;
+      will-change: transform;
+    }
+
+    .heart-tile::after {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, rgb(255 255 255 / 12%), transparent 65%);
+      content: "";
+      pointer-events: none;
+    }
+
+    @media (max-width: 650px) {
+      .heart-board { gap: 2px; }
+      .heart-tile { border-width: 1px; border-radius: 4px; }
+    }
+
+    @keyframes heart-beat {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 12px 20px rgb(194 128 153 / 16%)); }
+      50% { transform: scale(1.025); filter: drop-shadow(0 16px 24px rgb(222 133 164 / 28%)); }
+    }
+
+    @keyframes heart-tile-drift {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-3px) scale(.97); }
+    }
+
+    .polaroid {
+      width: min(100%, 470px);
+      margin: 20px auto 12px;
+      padding: 14px 14px 17px;
+      transform: rotate(-1deg);
+      border: 1px solid #f3ebeb;
+      background: white;
+      box-shadow: 0 12px 28px rgb(102 83 95 / 13%);
+    }
+
+    .photo-frame {
+      position: relative;
+      display: grid;
+      width: 100%;
+      aspect-ratio: var(--photo-ratio, 4 / 3);
+      place-items: center;
+      overflow: hidden;
+      background: linear-gradient(140deg, #ffe8ee, #e6f8f1 55%, #fff2d9);
+      touch-action: pan-y;
+    }
+
+    .photo-stage {
+      position: relative;
+      display: grid;
+      width: 100%;
+      place-items: center;
+      overflow: hidden;
+      background: linear-gradient(140deg, #ffe8ee, #e6f8f1 55%, #fff2d9);
+      touch-action: pan-y;
+    }
+
+    .photo-frame img, .letter-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .heart-tile img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-placeholder {
+      display: grid;
+      width: 100%;
+      height: 100%;
+      place-items: center;
+      color: #bc92a3;
+      font-size: 3rem;
+    }
+
+    .photo-caption {
+      min-height: 30px;
+      margin: 13px 0 0;
+      color: #806b78;
+      font-family: var(--hand);
+      font-size: 1.05rem;
+    }
+
+    .photo-count {
+      margin: 4px 0 0;
+      color: #b4a1ab;
+      font-size: .78rem;
+      letter-spacing: .12em;
+    }
+
+    .slider-controls { display: flex; justify-content: center; gap: 14px; }
+
+    .round-btn {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 1px solid #eadce5;
+      border-radius: 50%;
+      background: white;
+      color: #9a7890;
+      cursor: pointer;
+      font-size: 1.15rem;
+    }
+
+    .letter {
+      position: relative;
+      width: min(100%, 740px);
+      padding: clamp(24px, 5vw, 48px);
+      overflow: hidden;
+      border: 1px solid #edd9cb;
+      border-radius: 8px 24px 8px 24px;
+      background:
+        radial-gradient(ellipse at 8% 7%, rgb(255 209 220 / 35%), transparent 28%),
+        radial-gradient(ellipse at 94% 95%, rgb(181 234 215 / 35%), transparent 30%),
+        repeating-linear-gradient(0deg, transparent 0 31px, rgb(205 178 168 / 11%) 32px 33px),
+        #fffaf1;
+      box-shadow: 0 17px 42px rgb(112 83 68 / 14%);
+      text-align: left;
+    }
+
+    .letter::before {
+      position: absolute;
+      inset: 9px;
+      border: 1px dashed rgb(213 167 177 / 62%);
+      border-radius: 5px 18px 5px 18px;
+      content: "";
+      pointer-events: none;
+    }
+
+    .letter-heading, .letter-copy, .letter-signature { position: relative; z-index: 1; }
+    .letter-heading { margin-bottom: 18px; text-align: center; }
+
+    .letter-heading h2 {
+      margin-bottom: 5px;
+      font-family: var(--hand);
+      font-size: clamp(1.7rem, 5vw, 2.5rem);
+    }
+
+    .letter-heading p { margin: 0; color: #aa8795; font-size: .85rem; }
+
+    .letter-photo {
+      float: right;
+      width: 102px;
+      height: 112px;
+      margin: 5px 0 14px 18px;
+      padding: 6px 6px 16px;
+      transform: rotate(5deg);
+      background: white;
+      box-shadow: 0 5px 14px rgb(91 67 79 / 17%);
+    }
+
+    .letter-photo .photo-placeholder { font-size: 1.8rem; }
+
+    .letter-copy {
+      color: #796777;
+      font-family: var(--hand);
+      font-size: clamp(.95rem, 2.5vw, 1.12rem);
+      line-height: 1.9;
+    }
+
+    .letter-copy p { margin: 0 0 12px; }
+
+    .letter-signature {
+      margin: 18px 0 0;
+      color: #ba7f9b;
+      font-family: var(--hand);
+      font-size: 1.2rem;
+      text-align: right;
+    }
+
+    .sky {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 17% 23%, rgb(255 255 255 / 85%) 0 2px, transparent 3px),
+        radial-gradient(circle at 78% 20%, rgb(255 240 193 / 85%) 0 2px, transparent 3px),
+        radial-gradient(circle at 88% 61%, rgb(255 255 255 / 90%) 0 2px, transparent 3px),
+        radial-gradient(circle at 27% 76%, rgb(228 223 236 / 90%) 0 2px, transparent 3px),
+        linear-gradient(150deg, #514c70, #766d91 55%, #ae86a1);
+      color: white;
+    }
+
+    .sky h2 { color: #fff8ee; }
+    .sky .eyebrow { color: #ffdfb6; }
+    .sky .subtitle { color: #f1e8f1; }
+
+    .sky-stars {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(2px 2px at 12% 43%, #fff 50%, transparent 70%),
+        radial-gradient(2px 2px at 74% 48%, #fff4cf 50%, transparent 70%),
+        radial-gradient(2px 2px at 34% 18%, #fff 50%, transparent 70%),
+        radial-gradient(1.5px 1.5px at 61% 84%, #fff 50%, transparent 70%);
+      background-size: 173px 137px, 227px 190px, 190px 157px, 147px 209px;
+      opacity: .8;
+      animation: star-shift 8s linear infinite;
+    }
+
+    @keyframes star-shift { to { background-position: 173px 137px, -227px 190px, 190px -157px, -147px 209px; } }
+
+    .sky-content { position: relative; z-index: 1; }
+
+    .meteor {
+      position: absolute;
+      z-index: 3;
+      top: 58%;
+      left: 12%;
+      width: 190px;
+      height: 3px;
+      transform: rotate(-28deg);
+      transform-origin: right center;
+      border-radius: 999px;
+      background: linear-gradient(90deg, transparent, #ffe4a7 65%, white);
+      box-shadow: 0 0 12px 3px rgb(255 226 164 / 80%);
+      pointer-events: none;
+    }
+
+    .meteor::after {
+      position: absolute;
+      top: 50%;
+      right: -9px;
+      transform: translateY(-50%);
+      color: #fff8cc;
+      content: "✦";
+      font-size: 28px;
+      line-height: 1;
+      text-shadow: 0 0 12px #ffe49c, 0 0 24px #ffd47e;
+    }
+
+    .meteor.fly { animation: meteor-flight 1.35s cubic-bezier(.2, .6, .25, 1) both; }
+
+    @keyframes meteor-flight {
+      0% { transform: translate(0, 0) rotate(-28deg) scale(.4); opacity: 0; }
+      12% { opacity: 1; }
+      100% { transform: translate(75vw, -52vh) rotate(-28deg) scale(1.25); opacity: 0; }
+    }
+
+    .wish-result {
+      min-height: 30px;
+      margin: 19px 0 0;
+      color: #ffe9b8;
+      font-family: var(--hand);
+      font-size: 1.2rem;
+    }
+
+    .wish-input {
+      width: min(100%, 420px);
+      min-height: 48px;
+      margin: 0 auto 16px;
+      padding: 12px 18px;
+      border: 1px solid rgb(255 255 255 / 60%);
+      border-radius: 999px;
+      outline: none;
+      background: rgb(255 255 255 / 14%);
+      color: white;
+      font: inherit;
+      text-align: center;
+    }
+
+    .wish-input::placeholder { color: rgb(255 255 255 / 72%); }
+    .wish-input:focus { border-color: #ffe4a7; box-shadow: 0 0 0 3px rgb(255 228 167 / 18%); }
+
+    .app.finale-mode {
+      min-height: 100vh;
+      min-height: 100svh;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .app.finale-mode .topbar,
+    .app.finale-mode .footer-note { display: none; }
+
+    .app.finale-mode .stage {
+      z-index: 1;
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100svh;
+    }
+
+    .app.finale-mode .screen { min-height: 100vh; min-height: 100svh; }
+
+    .finale-sky {
+      position: fixed;
+      z-index: 1;
+      inset: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgb(112 102 151 / 45%), transparent 55%),
+        radial-gradient(circle at 16% 22%, #fff 0 1px, transparent 2px),
+        radial-gradient(circle at 82% 18%, #fff0c1 0 1.5px, transparent 2.5px),
+        radial-gradient(circle at 72% 37%, #fff 0 1px, transparent 2px),
+        radial-gradient(circle at 28% 43%, #ffe8aa 0 1px, transparent 2px),
+        radial-gradient(circle at 89% 54%, #fff 0 1px, transparent 2px),
+        radial-gradient(circle at 11% 61%, #fff0c1 0 1.5px, transparent 2.5px),
+        linear-gradient(180deg, #302d50 0%, #4a426c 50%, #786184 100%);
+    }
+
+    .finale-sky::before,
+    .finale-sky::after {
+      position: absolute;
+      inset: -50%;
+      background-image:
+        radial-gradient(2px 2px at 15% 23%, #fff 50%, transparent 70%),
+        radial-gradient(1.5px 1.5px at 67% 39%, #fff0c1 50%, transparent 70%),
+        radial-gradient(2px 2px at 43% 72%, #fff 50%, transparent 70%),
+        radial-gradient(1px 1px at 83% 81%, #fff 50%, transparent 70%);
+      background-size: 190px 180px, 230px 210px, 270px 250px, 160px 170px;
+      content: "";
+      pointer-events: none;
+      animation: finale-stars 32s linear infinite;
+    }
+
+    .finale-sky::after {
+      opacity: .5;
+      animation-direction: reverse;
+      animation-duration: 46s;
+    }
+
+    @keyframes finale-stars {
+      to { transform: translate3d(8%, 12%, 0); }
+    }
+
+    .finale-sparkles {
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .finale-float {
+      position: absolute;
+      bottom: -50px;
+      left: var(--left);
+      color: var(--tint);
+      font-size: var(--size);
+      opacity: 0;
+      animation: finale-float-up var(--duration) linear var(--delay) infinite;
+      filter: drop-shadow(0 0 8px rgb(255 228 209 / 44%));
+    }
+
+    @keyframes finale-float-up {
+      0% { transform: translate3d(0, 0, 0) rotate(0) scale(.7); opacity: 0; }
+      12% { opacity: .8; }
+      82% { opacity: .7; }
+      100% { transform: translate3d(var(--drift), -115vh, 0) rotate(220deg) scale(1.15); opacity: 0; }
+    }
+
+    .final-wish {
+      position: absolute;
+      z-index: 2;
+      top: 68%;
+      left: 50%;
+      width: min(88vw, 680px);
+      transform: translate(-50%, -50%);
+      color: #fff5d8;
+      font-family: var(--hand);
+      font-size: clamp(1.2rem, 4.3vw, 2rem);
+      line-height: 1.5;
+      text-align: center;
+      text-shadow: 0 0 16px rgb(255 223 157 / 70%);
+      overflow-wrap: anywhere;
+      opacity: 0;
+    }
+
+    .final-wish.visible { animation: wish-appear .8s ease both; }
+
+    .final-wish.launch {
+      animation: wish-to-star 2.5s cubic-bezier(.4, 0, .7, 1) forwards;
+    }
+
+    .final-wish-text {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .final-wish.launch .final-wish-text {
+      animation: wish-text-to-star .45s ease forwards;
+    }
+
+    .final-star {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      isolation: isolate;
+      transform: translate(-50%, -50%) scale(.45);
+      color: #fff9d5;
+      font-family: var(--round);
+      font-size: clamp(3rem, 10vw, 5rem);
+      line-height: 1;
+      text-shadow: 0 0 18px #fff1ae, 0 0 36px #ffd27a;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .final-star::before {
+      position: absolute;
+      z-index: -1;
+      top: 67%;
+      left: 50%;
+      width: 5px;
+      height: clamp(90px, 23vh, 210px);
+      transform: translateX(-50%) scaleY(0);
+      transform-origin: top center;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #fff9d9 0%, rgb(255 231 171 / 80%) 18%, rgb(255 211 157 / 32%) 62%, transparent 100%);
+      box-shadow: 0 0 14px 4px rgb(255 226 164 / 42%);
+      content: "";
+      opacity: 0;
+    }
+
+    .final-wish.launch .final-star {
+      animation: wish-star-appear .45s ease forwards, star-glow .8s .45s ease-in-out infinite alternate;
+    }
+
+    .final-wish.launch .final-star::before {
+      animation: star-trail 1.1s .12s ease-out forwards;
+    }
+
+    @keyframes wish-appear {
+      from { transform: translate(-50%, -42%); opacity: 0; }
+      to { transform: translate(-50%, -50%); opacity: 1; }
+    }
+
+    @keyframes wish-to-star {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      100% { transform: translate(-50%, calc(-50% - 68vh)) scale(.9); opacity: 0; }
+    }
+
+    @keyframes wish-text-to-star { to { transform: scale(.45); opacity: 0; } }
+    @keyframes wish-star-appear { to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+    @keyframes star-glow { to { text-shadow: 0 0 26px white, 0 0 52px #ffd27a; } }
+    @keyframes star-trail {
+      0% { transform: translateX(-50%) scaleY(0); opacity: 0; }
+      35% { opacity: .9; }
+      100% { transform: translateX(-50%) scaleY(1); opacity: .35; }
+    }
+
+    .final-message {
+      position: absolute;
+      z-index: 2;
+      right: 20px;
+      bottom: clamp(84px, 13vh, 130px);
+      left: 20px;
+      margin: 0;
+      transform: translateY(10px);
+      color: #fff2d8;
+      font-family: var(--hand);
+      font-size: clamp(1.1rem, 3.4vw, 1.65rem);
+      line-height: 1.6;
+      text-align: center;
+      text-shadow: 0 0 15px rgb(255 226 166 / 44%);
+      opacity: 0;
+      transition: opacity .8s ease, transform .8s ease;
+    }
+
+    .final-message.visible { transform: translateY(0); opacity: 1; }
+
+    .final-restart {
+      position: absolute;
+      z-index: 2;
+      bottom: clamp(22px, 5vh, 48px);
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity .8s ease;
+    }
+
+    .final-restart:hover:not(:disabled) { transform: translateX(-50%); }
+
+    .final-restart.visible { opacity: 1; }
+
+    .confetti-piece {
+      position: fixed;
+      z-index: 20;
+      top: -15px;
+      left: var(--x);
+      width: 10px;
+      height: 14px;
+      border-radius: 4px;
+      background: var(--color);
+      pointer-events: none;
+      animation: confetti-fall var(--fall, 2.2s) ease-in var(--wait, 0s) forwards;
+    }
+
+    @keyframes confetti-fall {
+      to { transform: translate3d(var(--sway, 25px), 110vh, 0) rotate(780deg); opacity: .1; }
+    }
+
+    .footer-note {
+      width: min(100%, 980px);
+      margin-top: 12px;
+      color: #b5a4ae;
+      font-size: .73rem;
+      text-align: center;
+    }
+
+    @media (max-width: 650px) {
+      .app { padding: 16px 12px 20px; }
+      .topbar { margin-bottom: 7px; }
+      .brand { font-size: .7rem; }
+      .progress { gap: 5px; }
+      .progress-dot { width: 8px; height: 8px; }
+      .screen { min-height: calc(100vh - 94px); }
+      .card { border-radius: 25px; }
+      .cake-layout { grid-template-columns: 1fr; gap: 20px; text-align: center; }
+      .cake-scene { min-height: 245px; }
+      .cake { transform: scale(.88); transform-origin: center top; margin-bottom: -20px; }
+      .wish-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .wish-tag { min-height: 116px; }
+      .heart-board { gap: 3px; padding: 6px; }
+      .letter-photo { width: 83px; height: 92px; margin-left: 12px; }
+      .music-player { right: 10px; bottom: 10px; gap: 7px; padding: 7px 9px; }
+      .music-toggle { min-height: 36px; padding: 6px 10px; font-size: .82rem; }
+      .music-volume { width: 58px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body class="intro-mode">
+  <div class="ambient" id="ambient" aria-hidden="true"></div>
+  <div class="app">
+    <header class="topbar">
+      <!-- [CHÚ THÍCH THAY THẾ: Dòng chữ thương hiệu nhỏ trên đầu trang; sửa trực tiếp nội dung trong thẻ div.brand.] -->
+      <div class="brand">một chiếc bánh kem gửi cho Nghiii ♡</div>
+      <nav class="progress" id="progress" aria-label="Tiến trình lời chúc"></nav>
+    </header>
+
+    <main class="stage">
+      <section class="screen active" id="screen-1" aria-labelledby="title-1">
+        <div class="card">
+          <!-- [CHÚ THÍCH THAY THẾ: Các sticker trang trí màn đầu; sửa emoji tại từng span nếu muốn thay bằng sticker khác.] -->
+          <span class="intro-sticker" aria-hidden="true">🧸</span>
+          <span class="intro-sticker" aria-hidden="true">🎀</span>
+          <span class="intro-sticker" aria-hidden="true">🌷</span>
+          <span class="intro-sticker" aria-hidden="true">🐰</span>
+          <span class="intro-sticker" aria-hidden="true">🍓</span>
+          <span class="intro-sticker" aria-hidden="true">🧁</span>
+          <!-- [CHÚ THÍCH THAY THẾ: Tiêu đề viết tay màn mở đầu; thay nội dung bằng cách sửa biến BIRTHDAY_TITLE ở phần JavaScript.] -->
+          <h1 class="script-title" id="title-1"><!-- [CHÚ THÍCH THAY THẾ: Tiêu đề chúc mừng sinh nhật; sửa BIRTHDAY_TITLE trong phần JAVASCRIPT.] --></h1>
+          <div class="birthday-date" id="birthdayDate" role="img"><!-- [CHÚ THÍCH THAY THẾ: Dãy số ngày sinh cuộn dọc và tháng cạnh bên; sửa BIRTHDAY_DAY và BIRTHDAY_MONTH trong JavaScript.] --></div>
+          <p class="subtitle" id="introCopy"><!-- [CHÚ THÍCH THAY THẾ: Lời chào mở đầu; sửa INTRO_MESSAGE trong phần JAVASCRIPT.] --></p>
+          <button class="btn" id="startButton" type="button"><!-- [CHÚ THÍCH THAY THẾ: Chữ trên nút bắt đầu; sửa START_LABEL trong phần JAVASCRIPT.] --></button>
+          <!-- [CHÚ THÍCH THAY THẾ: Lời ghi chú cuối thẻ đầu tiên; sửa trực tiếp nội dung trong thẻ p.tiny-note.] -->
+          <p class="tiny-note">một món quà nhỏ xíu, dành cho mình Ryyyy ✿</p>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-2" aria-labelledby="title-2" aria-hidden="true">
+        <div class="card">
+          <div class="cake-layout">
+            <div class="cake-scene" aria-label="Bánh kem ba tầng pastel với một ngọn nến đang cháy">
+              <!-- [CHÚ THÍCH THAY THẾ: Bánh kem hiện được vẽ hoàn toàn bằng CSS nên không cần file ảnh. Nếu muốn dùng ảnh bánh riêng, đặt ảnh trong ./images/cake.png rồi thay phần minh họa .cake-scene bằng thẻ img; giữ nút nến có id="candle".] -->
+              <div class="cake" aria-hidden="true">
+                <div class="cake-shadow"></div>
+                <div class="cake-tier tier-bottom"><span class="cake-dot"></span></div>
+                <div class="cake-tier tier-middle"><span class="cake-dot"></span></div>
+                <div class="cake-tier tier-top"><span class="cake-dot"></span></div>
+                <button class="candle" id="candle" type="button" aria-label="Chạm để thổi tắt nến">
+                  <span class="flame" aria-hidden="true"></span>
+                </button>
+              </div>
+            </div>
+            <div>
+              <!-- [CHÚ THÍCH THAY THẾ: Dòng giới thiệu ở phần bánh kem; sửa trực tiếp trong thẻ p.eyebrow.] -->
+              <p class="eyebrow">nhắm mắt lại và ước nhé</p>
+              <!-- [CHÚ THÍCH THAY THẾ: Tiêu đề bên cạnh bánh; sửa trực tiếp trong thẻ h2#title-2.] -->
+              <h2 id="title-2">Có một món quà nhỏ dành cho Chị Suuuu áaaa...</h2>
+              <p class="subtitle"><!-- [CHÚ THÍCH THAY THẾ: Lời nhắn cạnh bánh kem; sửa CAKE_MESSAGE trong phần JAVASCRIPT.] --></p>
+              <!-- [CHÚ THÍCH THAY THẾ: Icon thỏ và dòng hướng dẫn chạm nến; sửa icon trong span.bunny và sửa CANDLE_HINT trong phần JAVASCRIPT.] -->
+              <div class="wish-hint"><span class="bunny" aria-hidden="true">🐰</span><span id="candleHint"><!-- [CHÚ THÍCH THAY THẾ: Hướng dẫn tương tác với nến; sửa CANDLE_HINT trong phần JAVASCRIPT.] --></span></div>
+              <p class="message-line" id="birthdayMessages" aria-live="polite"></p>
+            </div>
+          </div>
+          <div class="button-row">
+            <button class="btn" id="afterCakeButton" type="button" disabled><!-- [CHÚ THÍCH THAY THẾ: Chữ trên nút sang phần thẻ điều ước; sửa AFTER_CAKE_LABEL trong phần JAVASCRIPT.] --></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-3" aria-labelledby="title-3" aria-hidden="true">
+        <div class="card">
+          <!-- [CHÚ THÍCH THAY THẾ: Dòng hướng dẫn nhỏ phía trên tiêu đề thẻ; sửa trực tiếp trong thẻ p.eyebrow.] -->
+          <p class="eyebrow">chọn một chiếc nhé</p>
+          <!-- [CHÚ THÍCH THAY THẾ: Tiêu đề màn hình chọn thẻ; sửa trực tiếp trong thẻ h2#title-3.] -->
+          <h2 id="title-3">Một điều ước xinh xắn dành riêng cho Ph Ryyyyy</h2>
+          <!-- [CHÚ THÍCH THAY THẾ: Hướng dẫn chọn thẻ điều ước; sửa trực tiếp trong thẻ p.subtitle.] -->
+          <p class="subtitle">Chạm vào một chiếc tag để mở món quà bí mật bên trong nhaaaaaaaa ✨</p>
+          <div class="wish-grid" id="wishGrid"></div>
+          <p class="picked-wish" id="pickedWish" aria-live="polite"></p>
+          <!-- [CHÚ THÍCH THAY THẾ: Nhãn nút chuyển từ màn hình thẻ sang trái tim ảnh; sửa trực tiếp trong thẻ button#afterWishButton.] -->
+          <button class="btn" id="afterWishButton" type="button" disabled>Gửi Ph Ryyyyy thêm một điều bất ngờ →</button>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-4" aria-labelledby="title-4" aria-hidden="true">
+        <div class="card">
+          <!-- [CHÚ THÍCH THAY THẾ: Dòng giới thiệu cho trái tim ảnh ghép; sửa trực tiếp trong thẻ p.eyebrow.] -->
+          <p class="eyebrow">gom nhặt những điều dễ thương</p>
+          <!-- [CHÚ THÍCH THAY THẾ: Tiêu đề phía trên ảnh ghép; sửa trực tiếp trong thẻ h2#title-4.] -->
+          <h2 id="title-4">Một trái tim được ghép từ những điều đẹp đẽ</h2>
+          <!-- [CHÚ THÍCH THAY THẾ: Trái tim giữ bố cục lưới 12 cột x 10 hàng; mỗi ô vuông lần lượt lấy ảnh từ danh sách LOCAL_PHOTOS bên dưới.] -->
+          <div class="heart-board" id="heartBoard" aria-label="Trái tim 12 cột x 10 hàng ghép từ ảnh kỷ niệm"></div>
+          <!-- [CHÚ THÍCH THAY THẾ: Nhãn nút chuyển tới album ảnh; sửa trực tiếp trong thẻ button#afterHeartButton.] -->
+          <button class="btn" id="afterHeartButton" type="button">Cùng xem lại ảnh kỷ niệm nhé →</button>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-5" aria-labelledby="title-5" aria-hidden="true">
+        <div class="card">
+          <!-- [CHÚ THÍCH THAY THẾ: Dòng giới thiệu nhỏ của album; sửa trực tiếp trong thẻ p.eyebrow.] -->
+          <p class="eyebrow">mỗi tấm ảnh là một sự đáng yêuuuu</p>
+          <!-- [CHÚ THÍCH THAY THẾ: Tiêu đề album ảnh; sửa trực tiếp trong thẻ h2#title-5.] -->
+          <h2 id="title-5">Album nhỏ của Phương Nghi</h2>
+          <div class="polaroid">
+            <div class="photo-stage" id="sliderPhoto" aria-live="polite"></div>
+            <p class="photo-caption" id="photoCaption"></p>
+            <p class="photo-count" id="photoCount"></p>
+          </div>
+          <div class="slider-controls">
+            <!-- [CHÚ THÍCH THAY THẾ: Các nút mũi tên chuyển ảnh; giữ aria-label mô tả nút khi sửa nội dung hiển thị.] -->
+            <button class="round-btn" id="previousPhoto" type="button" aria-label="Xem ảnh trước">←</button>
+            <button class="round-btn" id="nextPhoto" type="button" aria-label="Xem ảnh tiếp theo">→</button>
+          </div>
+          <!-- [CHÚ THÍCH THAY THẾ: Hướng dẫn thao tác album; có thể thay nội dung nếu muốn đổi cách dùng slider.] -->
+          <p class="tiny-note">dùng mũi tên hoặc chạm hai bên để lật từng trang ♡</p>
+          <!-- [CHÚ THÍCH THAY THẾ: Nhãn nút chuyển tới lá thư; sửa trực tiếp trong thẻ button#afterAlbumButton.] -->
+          <button class="btn" id="afterAlbumButton" type="button">Đọc lá thư bí mật →</button>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-6" aria-labelledby="title-6" aria-hidden="true">
+        <div class="letter">
+          <div class="letter-heading">
+            <!-- [CHÚ THÍCH THAY THẾ: Dòng mở đầu nhỏ của thư; sửa trực tiếp trong thẻ p.eyebrow.] -->
+            <p class="eyebrow">mở ra khi cậu cần một cái ôm</p>
+            <!-- [CHÚ THÍCH THAY THẾ: Lời xưng hô đầu thư; sửa trực tiếp trong thẻ h2#title-6.] -->
+            <h2 id="title-6">Gửi nàng thơ đáng yêu nhất trên đờiiii,</h2>
+            <!-- [CHÚ THÍCH THAY THẾ: Dòng mô tả ngay dưới lời xưng hô; sửa trực tiếp trong thẻ p.] -->
+            <p>một lá thư được viết bằng tất cả những tình cảm dành cho Nghi ♡</p>
+          </div>
+          <div class="letter-photo" id="letterPhoto" aria-hidden="true">
+            <!-- [CHÚ THÍCH THAY THẾ: Ảnh polaroid nhỏ ở góc thư; file ảnh được lấy từ LOCAL_PHOTOS trong JAVASCRIPT, thư mục ./images/.] -->
+          </div>
+          <div class="letter-copy" id="letterCopy"><!-- [CHÚ THÍCH THAY THẾ: Nội dung đầy đủ của lá thư; sửa LETTER_PARAGRAPHS trong phần JAVASCRIPT. Mỗi đoạn là một chuỗi riêng.] --></div>
+          <p class="letter-signature" id="letterSignature"><!-- [CHÚ THÍCH THAY THẾ: Chữ ký cuối thư; sửa LETTER_SIGNATURE trong phần JAVASCRIPT.] --></p>
+          <div class="button-row">
+            <!-- [CHÚ THÍCH THAY THẾ: Nút quay lại album ảnh; sửa trực tiếp trong thẻ button#backToAlbumButton.] -->
+            <button class="btn btn-soft" id="backToAlbumButton" type="button">← Xem lại album</button>
+            <!-- [CHÚ THÍCH THAY THẾ: Nút mở màn hình điều ước; sửa trực tiếp trong thẻ button#afterLetterButton.] -->
+            <button class="btn" id="afterLetterButton" type="button">Gửi điều ước lên trời →</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-7" aria-labelledby="title-7" aria-hidden="true">
+        <div class="card sky">
+          <div class="sky-stars" aria-hidden="true"></div>
+          <div class="sky-content">
+            <!-- [CHÚ THÍCH THAY THẾ: Dòng giới thiệu của bầu trời sao; sửa trực tiếp trong thẻ p.eyebrow.] -->
+            <p class="eyebrow">bầu trời đang lắng nghe</p>
+            <!-- [CHÚ THÍCH THAY THẾ: Tiêu đề mở phần gửi điều ước; có thể sửa trực tiếp nội dung trong thẻ h2#title-7.] -->
+            <h2 id="title-7" class="wish-title-trigger" role="button" tabindex="0" aria-label="Bắt đầu cho điều ước hóa thành ngôi sao">Biến điều ước thành ngôi sao 🌠</h2>
+            <!-- [CHÚ THÍCH THAY THẾ: Lời nhắn hướng dẫn trước khi gửi điều ước; sửa trực tiếp trong thẻ p.subtitle.] -->
+            <p class="subtitle">Nghĩ về một điều mày mong nhất, rồi gửi nó lên những vì sao nhaaaa.</p>
+            <!-- [CHÚ THÍCH THAY THẾ: Nhập lời ước; nội dung này xuất hiện trước khi hóa thành ngôi sao. Để trống sẽ dùng câu mặc định trong hàm sendWish().] -->
+            <input class="wish-input" id="wishInput" type="text" maxlength="100" placeholder="Viết điều ước của Nghi vào đây ✨" aria-label="Điều ước muốn gửi lên trời">
+            <!-- [CHÚ THÍCH THAY THẾ: Chữ trên nút chọn ngôi sao may mắn; sửa trực tiếp trong thẻ button#wishButton.] -->
+            <button class="btn" id="wishButton" type="button">Gửi điều ước lên trời ✨</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen finale-screen" id="screen-8" aria-label="Điều ước bay lên trời sao" aria-hidden="true">
+        <div class="finale-sky" aria-hidden="true">
+          <div class="finale-sparkles" id="finaleSparkles"></div>
+          <div class="final-wish" id="finalWish" aria-live="polite">
+            <span class="final-wish-text" id="finalWishText"></span>
+            <span class="final-star" aria-hidden="true">★</span>
+          </div>
+          <!-- [CHÚ THÍCH THAY THẾ: Lời nhắn hiện sau khi ngôi sao bay lên; sửa nội dung trực tiếp trong thẻ p#finalMessage.] -->
+          <p class="final-message" id="finalMessage" aria-live="polite">Mong điều ước của Nghi sớm hóa thành hiện thực ✨</p>
+          <!-- [CHÚ THÍCH THAY THẾ: Nút bắt đầu lại xuất hiện sau lời nhắn cuối; bấm để đưa trang về màn mở đầu.] -->
+          <button class="btn btn-soft final-restart" id="restartButton" type="button">Bắt đầu lại từ đầu ↺</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- [CHÚ THÍCH THAY THẾ: Dòng chân trang cuối website; sửa trực tiếp nội dung trong thẻ p.footer-note.] -->
+    <p class="footer-note">được làm bằng tất cả những điều tốt đẹp và tình bạn dành cho Suuuu ♡</p>
+  </div>
+
+    <!-- [CHÚ THÍCH THAY THẾ: Trình phát nhạc luôn nằm ngoài các màn hình nên nhạc không bị ngắt khi chuyển phần. Chép MP3 vào thư mục ./audio/ hoặc sửa BACKGROUND_MUSIC_SRC trong JavaScript.] -->
+    <audio id="backgroundMusic" loop preload="none"></audio>
+    <div class="music-player" role="group" aria-label="Trình phát nhạc sinh nhật">
+      <button class="music-toggle" id="musicToggle" type="button" aria-pressed="false" aria-label="Bật nhạc nền">
+        <span class="music-icon" aria-hidden="true">♫</span>
+        <span id="musicToggleLabel">Bật nhạc</span>
+      </button>
+      <input class="music-volume" id="musicVolume" type="range" min="0" max="1" step="0.05" value="0.45" aria-label="Âm lượng nhạc nền">
+      <span class="music-status" id="musicStatus" aria-live="polite">Nhạc đang tắt</span>
+    </div>
+
+    <script>
+    "use strict";
+
+    // [CHÚ THÍCH THAY THẾ: KHU VỰC CÁ NHÂN HÓA — sửa các biến và mảng nội dung trong phần này; không cần chỉnh hàm xử lý bên dưới.]
+    // [CHÚ THÍCH THAY THẾ: Ngày sinh ở màn hình mở đầu; số ngày dừng trên dãy cuộn.]
+    const BIRTHDAY_DAY = 26;
+    // [CHÚ THÍCH THAY THẾ: Tháng sinh hiện bên cạnh dãy số; nhập số từ 1 đến 12.]
+    const BIRTHDAY_MONTH = 10;
+    // [CHÚ THÍCH THAY THẾ: Đường dẫn đến file MP3 local; chép nhạc vào thư mục ./audio/ cạnh index.html.]
+    const BACKGROUND_MUSIC_SRC = "./audio/nguyễn hùng.mp3";
+    // [CHÚ THÍCH THAY THẾ: Tiêu đề chữ viết tay ở màn hình đầu.]
+    const BIRTHDAY_TITLE = "Happy Birthday";
+    // [CHÚ THÍCH THAY THẾ: Đoạn chào mừng ngay dưới tiêu đề trang đầu.]
+    const INTRO_MESSAGE = "Hôm nay là một ngày vô cùng đặc biệt!!! Chính là ngày Nghi ra đời, và cũng là ngày tui muốn gửi đến Nghi một món quà nho nhỏ nhưng chứa đầy những điều dễ thương và đáng yêu nhất ♡";
+    // [CHÚ THÍCH THAY THẾ: Chữ trên nút bắt đầu mở món quà.]
+    const START_LABEL = "Mở món quà của cậu ♡";
+    // [CHÚ THÍCH THAY THẾ: Lời nhắn xuất hiện cạnh chiếc bánh.]
+    const CAKE_MESSAGE = "Tui dành chiếc bánh này cho một người thật đặc biệt. Bà hãy ước một điều trong tim rồi chạm vào ngọn nến nhé!";
+    // [CHÚ THÍCH THAY THẾ: Dòng chỉ dẫn thổi nến trước khi người dùng chạm vào nến.]
+    const CANDLE_HINT = "Chạm vào nến để thổi tắt nhé ✨";
+    // [CHÚ THÍCH THAY THẾ: Chữ trên nút chuyển từ bánh kem sang thẻ điều ước.]
+    const AFTER_CAKE_LABEL = "Mở thẻ điều ước →";
+    // [CHÚ THÍCH THAY THẾ: Lời ký tên ở cuối bức thư.]
+    const LETTER_SIGNATURE = "Thương Nghi nhiều lắm áaaaaa ♡";
+
+    // [CHÚ THÍCH THAY THẾ: Nội dung lời chúc ngẫu nhiên khi người dùng mở bất kỳ thẻ nào. Thêm/xóa câu trong mảng, mỗi câu đặt trong dấu ngoặc kép; thêm dấu phẩy sau câu trừ câu cuối.]
+    const WISH_MESSAGES = [
+      // [CHÚ THÍCH THAY THẾ: Câu chúc ngẫu nhiên dành cho chiếc thẻ được mở.]
+      "Mong tuổi mới ôm Nghi bằng thật nhiều bình yên, dịu dàng và những niềm vui bé xíu mỗi ngày.",
+      // [CHÚ THÍCH THAY THẾ: Câu chúc ngẫu nhiên dành cho chiếc thẻ được mở.]
+      "Chúc mọi điều Nghi âm thầm mong đợi sẽ lần lượt tìm được đường đến bên Nghi.",
+      // [CHÚ THÍCH THAY THẾ: Câu chúc ngẫu nhiên dành cho chiếc thẻ được mở.]
+      "Mong rằng Nghi luôn được ở cạnh những người thương Nghi, lắng nghe Nghi và làm Nghi cười.",
+      // [CHÚ THÍCH THAY THẾ: Câu chúc ngẫu nhiên dành cho chiếc thẻ được mở.]
+      "Chúc Nghi giữ được trái tim ấm áp này và luôn nhớ rằng Nghi tuyệt vời và tỏa sáng đến nhường nào.",
+      // [CHÚ THÍCH THAY THẾ: Câu chúc ngẫu nhiên dành cho chiếc thẻ được mở.]
+      "Mong ngày nào cũng có một lý do nhỏ để Nghi thấy cuộc sống thật đáng yêu.",
+      // [CHÚ THÍCH THAY THẾ: Câu chúc ngẫu nhiên dành cho chiếc thẻ được mở.]
+      "Chúc ước mơ của Nghi nở hoa đúng lúc, theo cách đẹp nhất và dành riêng cho Nghi."
+    ];
+
+    // [CHÚ THÍCH THAY THẾ: 22 ảnh kỷ niệm trong đúng thứ tự bạn gửi. Các file được giữ nguyên; ảnh album tự căn theo tỉ lệ gốc, không bị kéo méo hay cắt. Điền caption trong dấu ngoặc kép ở từng dòng. Có thể thêm/bớt ảnh bằng cách sao chép một dòng và đổi tên file.]
+    const LOCAL_PHOTOS = [
+      // [CHÚ THÍCH THAY THẾ: Ảnh 01 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-01.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 02 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-02.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 03 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-03.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 04 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-04.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 05 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-05.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 06 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-06.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 07 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-07.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 08 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-08.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 09 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-09.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 10 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-10.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 11 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-11.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 12 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-12.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 13 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-13.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 14 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-14.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 15 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-15.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 16 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-16.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 17 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-17.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 18 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-18.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 19 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-19.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 20 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-20.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 21 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-21.jpg", caption: "", fallback: "" },
+      // [CHÚ THÍCH THAY THẾ: Ảnh 22 theo thứ tự gửi; caption đang để trống để bạn tự viết.]
+      { src: "./images/ky-niem-22.jpg", caption: "", fallback: "" }
+    ];
+
+    // [CHÚ THÍCH THAY THẾ: Nội dung thư dài. Sửa các đoạn bên dưới; mỗi chuỗi sẽ thành một đoạn văn riêng. Có thể thêm/bớt đoạn, giữ dấu phẩy giữa các đoạn và không đặt dấu phẩy sau đoạn cuối.]
+    const LETTER_PARAGRAPHS = [
+      // [CHÚ THÍCH THAY THẾ: Đoạn đầu của bức thư chân thành.]
+      "Chúc mừng sinh nhật Phương Nghi nhaaaaa, hôm nay Út Tí muốn gửi đến Ryyy những lời chúc tốt đẹp và chân thành nhất, chúc Nghi có một tuổi 18 thật là rực rỡ thật tỏa sáng như mặt trời luôn nhaaaa.",
+      // [CHÚ THÍCH THAY THẾ: Đoạn thứ hai của bức thư chân thành.]
+      "Tuổi mới rồi, mình chúc Nghi có thật nhiều sức khỏe, những buổi sáng thức dậy với lòng nhẹ tênh, mong rằng những dự định về tương lai của Nghi sẽ trở thành hiện thực, Mong trái tim Nghi luôn được yêu thương và bảo vệ luôn cảm thấy thật là bình yên, Chúc Cho Nghi luôn được hạnh phúc lúc nào cũng được yêu thương lúc nào cũng mỉm cười.",
+      // [CHÚ THÍCH THAY THẾ: Đoạn thứ ba của bức thư chân thành.]
+      "Mong rằng Nghi sẽ mãi vững bức và tỏa sáng theo cách riêng của mình, Không còn muộn phiền nữa, Khi một ngày nào đó Nghi bỗng cảm thấy trống rỗng, cảm thấy buồn phiền thì mong rằng Nghi sẽ nhẹ nhàng với bản thân mình một chút, và hãy nhớ rằng tao sẽ mãi ở đây sẽ mãi là chỗ dựa khi mày cần tâm sự cần người nói chuyện hoặc gì đó =)))).",
+      // [CHÚ THÍCH THAY THẾ: Đoạn kết của bức thư chân thành.]
+      "Cảm ơn Nghi vì đã cho tao làm bạn với mày, bên cạnh tao mỗi lúc tao lạc lối, không biết mình đang ở đâu, cảm ơn Nghi vì những kỷ niệm khó quên của một thời áo trắng mãi mãi không bao giờ quên, cho dù ra sao hay như thế nào đi nữa Nghi vẫn sẽ luôn nằm ở trong trái tim tao là một mảnh ký ức khó phai ăn sâu vào trong tiềm thức. Và cuối cùng chúc Nghi sẽ trở thành một cô giáo hiền trở thành niềm tự hào của gia đình, của dòng họ, là danh dự của nhà trường và được lòng tất cả thế hệ học sinh."
+    ];
+
+    // [CHÚ THÍCH THAY THẾ: Bốn thẻ điều ước; đổi icon, nhãn và màu nền tại đây. Mỗi thẻ có một object { icon, label, color }.]
+    const WISH_TAGS = [
+      // [CHÚ THÍCH THAY THẾ: Icon, nhãn và màu nền của thẻ điều ước đầu tiên.]
+      { icon: "🌷", label: "Bình yên", color: "#fff0f4" },
+      // [CHÚ THÍCH THAY THẾ: Icon, nhãn và màu nền của thẻ điều ước thứ hai.]
+      { icon: "🍀", label: "May mắn", color: "#eefaf4" },
+      // [CHÚ THÍCH THAY THẾ: Icon, nhãn và màu nền của thẻ điều ước thứ ba.]
+      { icon: "🍰", label: "Niềm vui", color: "#fff8e6" },
+      // [CHÚ THÍCH THAY THẾ: Icon, nhãn và màu nền của thẻ điều ước thứ tư.]
+      { icon: "🌙", label: "Ước mơ", color: "#f1effa" }
+    ];
+
+    // [CHÚ THÍCH THAY THẾ: Hình trái tim được vẽ bằng mẫu 12 cột x 10 hàng. Dấu # tạo một ô ảnh vuông, dấu . để trống. Mỗi chuỗi phải dài đúng 12 ký tự; có đúng 10 chuỗi.]
+    const heartRows = [
+      "...##..##...",
+      ".####..####.",
+      "############",
+      "############",
+      ".##########.",
+      "..########..",
+      "...######...",
+      "....####....",
+      ".....##.....",
+      ".....##....."
+    ];
+    const heartColors = ["#f7d4df", "#d8f1e7", "#fff0c9", "#e8e3f3", "#fbe5d9"];
+    const progress = document.getElementById("progress");
+    const screens = Array.from(document.querySelectorAll(".screen"));
+    let currentScreen = 0;
+    let candleBlown = false;
+    let photoIndex = 0;
+    let hasPickedWish = false;
+    let wishJourneyStarted = false;
+
+    // [CHÚ THÍCH THAY THẾ: Gắn nội dung chữ đã khai báo ở trên vào từng vị trí của trang.]
+    function renderBirthdayDate() {
+      if (!Number.isInteger(BIRTHDAY_MONTH) || BIRTHDAY_MONTH < 1 || BIRTHDAY_MONTH > 12) {
+        throw new RangeError("BIRTHDAY_MONTH phải là số nguyên từ 1 đến 12.");
+      }
+      const daysInMonth = new Date(2024, BIRTHDAY_MONTH, 0).getDate();
+      if (!Number.isInteger(BIRTHDAY_DAY) || BIRTHDAY_DAY < 1 || BIRTHDAY_DAY > daysInMonth) {
+        throw new RangeError(`BIRTHDAY_DAY phải là số nguyên từ 1 đến ${daysInMonth}.`);
+      }
+
+      const dateDisplay = document.getElementById("birthdayDate");
+      dateDisplay.setAttribute("aria-label", `${BIRTHDAY_DAY} Tháng ${BIRTHDAY_MONTH}`);
+      dateDisplay.replaceChildren();
+
+      const reel = document.createElement("div");
+      reel.className = "date-reel";
+      reel.setAttribute("aria-hidden", "true");
+      const strip = document.createElement("div");
+      strip.className = "date-reel-strip";
+      const days = Array.from({ length: daysInMonth }, (_, index) => index + 1);
+      days.concat(days).forEach((day, index) => {
+        const number = document.createElement("span");
+        number.className = "date-number";
+        number.textContent = String(day);
+        if (index === daysInMonth + BIRTHDAY_DAY - 1) number.classList.add("is-target");
+        strip.appendChild(number);
+      });
+      reel.appendChild(strip);
+
+      const month = document.createElement("span");
+      month.className = "birthday-month";
+      month.textContent = `Tháng ${BIRTHDAY_MONTH}`;
+      dateDisplay.append(reel, month);
+      startBirthdayDateRoll(strip, dateDisplay, daysInMonth);
+    }
+
+    let birthdayRollTimer;
+    function startBirthdayDateRoll(strip, dateDisplay, daysInMonth) {
+      window.clearTimeout(birthdayRollTimer);
+      dateDisplay.classList.remove("is-settled");
+      strip.classList.remove("is-rolling");
+      strip.style.transform = "translateY(0)";
+
+      const rowHeight = Number.parseFloat(getComputedStyle(strip).getPropertyValue("--date-row-height")) ||
+        Number.parseFloat(getComputedStyle(dateDisplay).getPropertyValue("--date-row-height"));
+      const targetIndex = daysInMonth + BIRTHDAY_DAY - 1;
+      const settle = () => {
+        strip.classList.add("is-rolling");
+        strip.style.transform = `translateY(-${(targetIndex - 1) * rowHeight}px)`;
+        birthdayRollTimer = window.setTimeout(() => dateDisplay.classList.add("is-settled"), 4300);
+      };
+
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        strip.style.transform = `translateY(-${(targetIndex - 1) * rowHeight}px)`;
+        dateDisplay.classList.add("is-settled");
+        return;
+      }
+      window.requestAnimationFrame(() => window.requestAnimationFrame(settle));
+    }
+
+    renderBirthdayDate();
+    document.getElementById("title-1").textContent = BIRTHDAY_TITLE;
+    document.getElementById("introCopy").textContent = INTRO_MESSAGE;
+    document.getElementById("startButton").textContent = START_LABEL;
+    document.querySelector("#screen-2 .subtitle").textContent = CAKE_MESSAGE;
+    document.getElementById("candleHint").textContent = CANDLE_HINT;
+    document.getElementById("afterCakeButton").textContent = AFTER_CAKE_LABEL;
+    document.getElementById("letterSignature").textContent = LETTER_SIGNATURE;
+
+    LETTER_PARAGRAPHS.forEach((paragraph) => {
+      const p = document.createElement("p");
+      p.textContent = paragraph;
+      document.getElementById("letterCopy").appendChild(p);
+    });
+
+    // [CHÚ THÍCH THAY THẾ: Các nút chấm ở đầu trang cho biết màn hình hiện tại; chỉ màn đã mở mới bấm quay lại được.]
+    screens.forEach((screen, index) => {
+      const dot = document.createElement("button");
+      dot.className = "progress-dot";
+      dot.type = "button";
+      dot.setAttribute("aria-label", `Màn hình ${index + 1}`);
+      dot.disabled = index > 0;
+      dot.addEventListener("click", () => {
+        if (index <= currentScreen) showScreen(index);
+      });
+      progress.appendChild(dot);
+    });
+
+    function showScreen(index) {
+      if (index < 0 || index >= screens.length) return;
+      currentScreen = index;
+      document.querySelector(".app").classList.toggle("finale-mode", index === 7);
+      screens.forEach((screen, i) => {
+        const isActive = i === index;
+        screen.classList.toggle("active", isActive);
+        screen.setAttribute("aria-hidden", String(!isActive));
+      });
+      Array.from(progress.children).forEach((dot, i) => {
+        dot.disabled = i > index;
+        if (i === index) dot.setAttribute("aria-current", "step");
+        else dot.removeAttribute("aria-current");
+      });
+    }
+
+    function makePhoto(photo, className) {
+      const frame = document.createElement("div");
+      frame.className = className;
+      frame.style.setProperty("--tile-color", heartColors[Math.floor(Math.random() * heartColors.length)]);
+      const fallback = document.createElement("span");
+      fallback.className = "photo-placeholder";
+      fallback.setAttribute("aria-hidden", "true");
+      fallback.textContent = photo.fallback;
+      frame.appendChild(fallback);
+
+      // [CHÚ THÍCH THAY THẾ: src của mỗi ảnh được lấy từ LOCAL_PHOTOS[].src ở trên, ví dụ ./images/ky-niem-01.jpg. Không dùng đường dẫn online.]
+      const image = document.createElement("img");
+      image.src = photo.src;
+      image.alt = photo.caption || "Ảnh kỷ niệm";
+      image.loading = className === "heart-tile" ? "eager" : "lazy";
+      image.addEventListener("load", () => {
+        fallback.remove();
+        if (className === "photo-frame") {
+          frame.style.setProperty("--photo-ratio", `${image.naturalWidth} / ${image.naturalHeight}`);
+        }
+      }, { once: true });
+      image.addEventListener("error", () => image.remove(), { once: true });
+      frame.appendChild(image);
+      return frame;
+    }
+
+    function makeHeartCollage() {
+      const board = document.getElementById("heartBoard");
+      let tileIndex = 0;
+
+      heartRows.forEach((row, rowIndex) => {
+        Array.from(row).forEach((cell, colIndex) => {
+          if (cell !== "#") return;
+
+          const tile = document.createElement("div");
+          tile.className = "heart-tile";
+          tile.setAttribute("aria-hidden", "true");
+          tile.style.setProperty("--tile-delay", `${(tileIndex % 12) * -.24}s`);
+          tile.style.gridColumn = String(colIndex + 1);
+          tile.style.gridRow = String(rowIndex + 1);
+          // [CHÚ THÍCH THAY THẾ: Các ô trái tim lần lượt lấy ảnh từ LOCAL_PHOTOS, lặp tuần tự để cả bộ ảnh đều xuất hiện.]
+          const photo = LOCAL_PHOTOS[tileIndex % LOCAL_PHOTOS.length];
+          const image = document.createElement("img");
+          image.src = photo.src;
+          image.alt = "";
+          image.loading = "eager";
+          image.decoding = "async";
+          tile.appendChild(image);
+          board.appendChild(tile);
+          tileIndex += 1;
+        });
+      });
+    }
+
+    function renderPhoto() {
+      const photo = LOCAL_PHOTOS[photoIndex];
+      const frame = document.getElementById("sliderPhoto");
+      frame.replaceChildren(makePhoto(photo, "photo-frame"));
+      document.getElementById("photoCaption").textContent = photo.caption;
+      document.getElementById("photoCount").textContent =
+        `${String(photoIndex + 1).padStart(2, "0")}  /  ${String(LOCAL_PHOTOS.length).padStart(2, "0")}`;
+    }
+
+    function renderLetterPhoto() {
+      const photo = LOCAL_PHOTOS[0];
+      const frame = makePhoto(photo, "letter-photo");
+      frame.id = "letterPhoto";
+      frame.setAttribute("aria-hidden", "true");
+      document.getElementById("letterPhoto").replaceWith(frame);
+    }
+
+    function makeWishTags() {
+      const grid = document.getElementById("wishGrid");
+      WISH_TAGS.forEach((tag, index) => {
+        const button = document.createElement("button");
+        button.className = "wish-tag";
+        button.type = "button";
+        button.style.setProperty("--tag-color", tag.color);
+        button.setAttribute("aria-label", `Mở thẻ ${tag.label}`);
+        // [CHÚ THÍCH THAY THẾ: Icon và nhãn thẻ lấy từ WISH_TAGS; dùng textContent để nội dung sửa đổi luôn hiển thị an toàn dạng văn bản.]
+        const icon = document.createElement("span");
+        icon.className = "tag-icon";
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = tag.icon;
+        const label = document.createElement("span");
+        label.className = "tag-label";
+        label.textContent = tag.label;
+        button.append(icon, label);
+        button.addEventListener("click", () => {
+          const wish = WISH_MESSAGES[Math.floor(Math.random() * WISH_MESSAGES.length)];
+          const message = document.getElementById("pickedWish");
+          message.textContent = wish;
+          message.classList.remove("show");
+          requestAnimationFrame(() => message.classList.add("show"));
+          grid.querySelectorAll(".wish-tag").forEach((item) => item.setAttribute("aria-pressed", "false"));
+          button.setAttribute("aria-pressed", "true");
+          document.getElementById("afterWishButton").disabled = false;
+          hasPickedWish = true;
+        });
+        button.setAttribute("aria-pressed", "false");
+        grid.appendChild(button);
+      });
+    }
+
+    function createAmbientDecorations() {
+      const ambient = document.getElementById("ambient");
+      // [CHÚ THÍCH THAY THẾ: Các biểu tượng cánh hoa và trái tim rơi nhẹ; sửa danh sách emoji nếu muốn đổi hiệu ứng.]
+      const floatingBits = ["🌸", "♡", "✿", "✨", "🌷"];
+      for (let i = 0; i < 20; i += 1) {
+        const bit = document.createElement("span");
+        bit.className = "floaty";
+        bit.textContent = floatingBits[i % floatingBits.length];
+        bit.style.left = `${(i * 47 + 9) % 100}%`;
+        bit.style.setProperty("--duration", `${10 + (i % 7) * 1.6}s`);
+        bit.style.setProperty("--delay", `${-(i % 11) * 1.2}s`);
+        bit.style.setProperty("--drift", `${(i % 2 === 0 ? 1 : -1) * (15 + (i % 5) * 9)}px`);
+        bit.style.fontSize = `${12 + (i % 4) * 5}px`;
+        ambient.appendChild(bit);
+      }
+      for (let i = 0; i < 9; i += 1) {
+        const sparkle = document.createElement("span");
+        sparkle.className = "sparkle";
+        sparkle.textContent = "✦";
+        sparkle.style.left = `${(i * 31 + 4) % 97}%`;
+        sparkle.style.top = `${(i * 43 + 8) % 90}%`;
+        sparkle.style.animationDelay = `${(i % 5) * -.7}s`;
+        sparkle.style.fontSize = `${10 + (i % 3) * 4}px`;
+        ambient.appendChild(sparkle);
+      }
+    }
+
+    function burstConfetti() {
+      const colors = ["#ffd1dc", "#b5ead7", "#fff2cc", "#e2dfec", "#f6b78f", "#fff"];
+      for (let i = 0; i < 90; i += 1) {
+        const piece = document.createElement("span");
+        piece.className = "confetti-piece";
+        piece.style.setProperty("--x", `${Math.random() * 100}vw`);
+        piece.style.setProperty("--color", colors[i % colors.length]);
+        piece.style.setProperty("--fall", `${1.5 + Math.random() * 1.8}s`);
+        piece.style.setProperty("--wait", `${Math.random() * .35}s`);
+        piece.style.setProperty("--sway", `${Math.random() * 180 - 90}px`);
+        document.body.appendChild(piece);
+        piece.addEventListener("animationend", () => piece.remove(), { once: true });
+      }
+    }
+
+    // [CHÚ THÍCH THAY THẾ: Các câu chúc chạy lần lượt sau khi thổi nến. Sửa/thêm/bớt chuỗi tại đây để cá nhân hóa nội dung.]
+    const CAKE_WISH_MESSAGES = [
+      // [CHÚ THÍCH THAY THẾ: Lời chúc đầu tiên hiện ra sau khi thổi nến.]
+      "Mong Nghi luôn được bao quanh bởi những điều dịu dàng nhất...",
+      // [CHÚ THÍCH THAY THẾ: Lời chúc thứ hai hiện ra sau khi thổi nến.]
+      "Mong mọi ước mơ bé xíu lẫn thật to đều có ngày thành hiện thực...",
+      // [CHÚ THÍCH THAY THẾ: Lời chúc cuối hiện ra sau khi thổi nến.]
+      "Và mong tuổi mới của cậu thật ngọt ngào thật tỏa sáng ♡"
+    ];
+
+    function blowOutCandle() {
+      if (candleBlown) return;
+      candleBlown = true;
+      const candle = document.getElementById("candle");
+      candle.classList.add("is-out");
+      candle.disabled = true;
+      candle.setAttribute("aria-label", "Ngọn nến đã được thổi tắt");
+      document.getElementById("candleHint").textContent = "Điều ước đã được gửi vào ngọn nến rồi đó ✨";
+      burstConfetti();
+
+      const message = document.getElementById("birthdayMessages");
+      CAKE_WISH_MESSAGES.forEach((wish, index) => {
+        window.setTimeout(() => {
+          message.classList.remove("show");
+          message.textContent = wish;
+          requestAnimationFrame(() => message.classList.add("show"));
+        }, 650 + index * 1900);
+      });
+      window.setTimeout(() => {
+        document.getElementById("afterCakeButton").disabled = false;
+        if (currentScreen === 1) showScreen(2);
+      }, 650 + CAKE_WISH_MESSAGES.length * 1900);
+    }
+
+    function changePhoto(direction) {
+      photoIndex = (photoIndex + direction + LOCAL_PHOTOS.length) % LOCAL_PHOTOS.length;
+      renderPhoto();
+    }
+
+    let swipeStartX = null;
+    const slider = document.getElementById("sliderPhoto");
+    slider.addEventListener("pointerdown", (event) => {
+      swipeStartX = event.clientX;
+    });
+    slider.addEventListener("pointerup", (event) => {
+      if (swipeStartX === null) return;
+      const delta = event.clientX - swipeStartX;
+      swipeStartX = null;
+      if (Math.abs(delta) > 45) changePhoto(delta < 0 ? 1 : -1);
+    });
+    slider.addEventListener("pointercancel", () => {
+      swipeStartX = null;
+    });
+
+    function createFinaleDecorations() {
+      const container = document.getElementById("finaleSparkles");
+      const decorations = ["✦", "♡", "✧", "✿", "☁", "✦", "♡", "✨"];
+      decorations.forEach((decoration, index) => {
+        const item = document.createElement("span");
+        item.className = "finale-float";
+        item.textContent = decoration;
+        item.style.setProperty("--left", `${(index * 17 + 5) % 100}%`);
+        item.style.setProperty("--size", `${14 + (index % 4) * 7}px`);
+        item.style.setProperty("--tint", ["#ffe8bd", "#ffd7e4", "#e4e0ff", "#d7fff0"][index % 4]);
+        item.style.setProperty("--duration", `${9 + (index % 5) * 2}s`);
+        item.style.setProperty("--delay", `${-(index % 6) * 1.7}s`);
+        item.style.setProperty("--drift", `${(index % 2 ? -1 : 1) * (20 + index * 5)}px`);
+        container.appendChild(item);
+      });
+    }
+
+    function sendWish() {
+      if (wishJourneyStarted) return;
+      wishJourneyStarted = true;
+
+      const wishInput = document.getElementById("wishInput");
+      // [CHÚ THÍCH THAY THẾ: Câu này hiện thành nội dung điều ước nếu khách để trống ô nhập.]
+      const wish = wishInput.value.trim() || "Điều ước của mình";
+      const finalWish = document.getElementById("finalWish");
+      document.getElementById("finalWishText").textContent = wish;
+      finalWish.className = "final-wish";
+      document.getElementById("finalMessage").classList.remove("visible");
+      document.getElementById("restartButton").classList.remove("visible");
+      showScreen(7);
+
+      window.setTimeout(() => {
+        finalWish.classList.add("visible");
+        burstConfetti();
+      }, 350);
+      window.setTimeout(() => {
+        finalWish.classList.remove("visible");
+        finalWish.classList.add("launch");
+      }, 1900);
+      window.setTimeout(() => {
+        document.getElementById("finalMessage").classList.add("visible");
+        document.getElementById("restartButton").classList.add("visible");
+      }, 4400);
+    }
+
+    function restartExperience() {
+      candleBlown = false;
+      hasPickedWish = false;
+      photoIndex = 0;
+      wishJourneyStarted = false;
+
+      const candle = document.getElementById("candle");
+      candle.classList.remove("is-out");
+      candle.disabled = false;
+      candle.setAttribute("aria-label", "Chạm để thổi tắt nến");
+      document.getElementById("candleHint").textContent = CANDLE_HINT;
+      document.getElementById("birthdayMessages").textContent = "";
+      document.getElementById("birthdayMessages").classList.remove("show");
+      document.getElementById("afterCakeButton").disabled = true;
+
+      document.getElementById("pickedWish").textContent = "";
+      document.getElementById("pickedWish").classList.remove("show");
+      document.querySelectorAll(".wish-tag").forEach((tag) => tag.setAttribute("aria-pressed", "false"));
+      document.getElementById("afterWishButton").disabled = true;
+
+      document.getElementById("wishInput").value = "";
+      document.getElementById("finalWishText").textContent = "";
+      document.getElementById("finalWish").className = "final-wish";
+      document.getElementById("finalMessage").classList.remove("visible");
+      document.getElementById("restartButton").classList.remove("visible");
+      document.getElementById("wishButton").disabled = false;
+      renderPhoto();
+      document.body.classList.add("intro-mode");
+      renderBirthdayDate();
+      showScreen(0);
+    }
+
+    createAmbientDecorations();
+    makeHeartCollage();
+    makeWishTags();
+    renderPhoto();
+    renderLetterPhoto();
+
+    const backgroundMusic = document.getElementById("backgroundMusic");
+    const musicToggle = document.getElementById("musicToggle");
+    const musicToggleLabel = document.getElementById("musicToggleLabel");
+    const musicStatus = document.getElementById("musicStatus");
+    const musicVolume = document.getElementById("musicVolume");
+    let musicPlaybackError = "";
+    backgroundMusic.src = BACKGROUND_MUSIC_SRC;
+    backgroundMusic.volume = Number(musicVolume.value);
+
+    function syncMusicPlayer(isPlaying) {
+      musicToggle.setAttribute("aria-pressed", String(isPlaying));
+      musicToggle.setAttribute("aria-label", isPlaying ? "Tắt nhạc nền" : "Bật nhạc nền");
+      musicToggleLabel.textContent = isPlaying ? "Tắt nhạc" : "Bật nhạc";
+      if (isPlaying) {
+        musicPlaybackError = "";
+        musicStatus.textContent = "Đang phát liên tục ♡";
+      } else {
+        musicStatus.textContent = musicPlaybackError || "Nhạc đang tắt";
+      }
+    }
+
+    musicToggle.addEventListener("click", async () => {
+      if (!backgroundMusic.paused) {
+        backgroundMusic.pause();
+        syncMusicPlayer(false);
+        return;
+      }
+
+      musicPlaybackError = "";
+      musicStatus.textContent = "Đang tải nhạc...";
+      try {
+        await backgroundMusic.play();
+        syncMusicPlayer(true);
+      } catch (error) {
+        musicPlaybackError = "Không phát được — kiểm tra file MP3";
+        syncMusicPlayer(false);
+        console.error("Không thể phát nhạc nền. Hãy kiểm tra đường dẫn MP3 local.", error);
+      }
+    });
+    backgroundMusic.addEventListener("play", () => syncMusicPlayer(true));
+    backgroundMusic.addEventListener("pause", () => syncMusicPlayer(false));
+    backgroundMusic.addEventListener("error", () => {
+      musicPlaybackError = "Không tìm thấy file MP3 local";
+      syncMusicPlayer(false);
+    });
+    musicVolume.addEventListener("input", () => {
+      backgroundMusic.volume = Number(musicVolume.value);
+    });
+
+    document.getElementById("startButton").addEventListener("click", () => {
+      document.body.classList.remove("intro-mode");
+      showScreen(1);
+    });
+    document.getElementById("candle").addEventListener("click", blowOutCandle);
+    document.getElementById("afterCakeButton").addEventListener("click", () => showScreen(2));
+    document.getElementById("afterWishButton").addEventListener("click", () => {
+      if (hasPickedWish) showScreen(3);
+    });
+    document.getElementById("afterHeartButton").addEventListener("click", () => showScreen(4));
+    document.getElementById("previousPhoto").addEventListener("click", () => changePhoto(-1));
+    document.getElementById("nextPhoto").addEventListener("click", () => changePhoto(1));
+    document.getElementById("afterAlbumButton").addEventListener("click", () => showScreen(5));
+    document.getElementById("backToAlbumButton").addEventListener("click", () => showScreen(4));
+    document.getElementById("afterLetterButton").addEventListener("click", () => showScreen(6));
+    document.getElementById("wishButton").addEventListener("click", sendWish);
+    document.getElementById("restartButton").addEventListener("click", restartExperience);
+    createFinaleDecorations();
+    document.getElementById("title-7").addEventListener("click", sendWish);
+    document.getElementById("title-7").addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      sendWish();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (currentScreen !== 4 || (event.key !== "ArrowLeft" && event.key !== "ArrowRight")) return;
+      event.preventDefault();
+      changePhoto(event.key === "ArrowRight" ? 1 : -1);
+    });
+  </script>
+</body>
+</html>
